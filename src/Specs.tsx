@@ -1,39 +1,37 @@
 import React from "react";
+import SpecItem from "./SepecItem";
 
-type SpecItemProps = {
-  label: string
-  value: number
-}
-
-const SpecItem: React.FC<SpecItemProps> = ({ label, value }) => {
-  return (
-    <div className="SpecItem">
-      <label>{label}</label>
-      <span className="value">{value}</span>
-    </div>
-  )
-}
 
 type SpecsProps = {
-  fatigue: number
   money: number
   skill: number
+  studyMaterials: number
+  bills: number
+  billsDueInDays: number
 }
 
 const Specs: React.FC<SpecsProps> = (props) => {
   return (
     <div className="Specs">
       <SpecItem
-        label="fatigue"
-        value={props.fatigue}
-      />
-      <SpecItem
         label="$"
         value={props.money}
       />
       <SpecItem
+        label="bills"
+        value={props.bills}
+      />
+      <SpecItem
+        label="days until bills due"
+        value={props.billsDueInDays}
+      />
+      <SpecItem
         label="skill"
         value={props.skill}
+      />
+      <SpecItem
+        label="study materials"
+        value={props.studyMaterials}
       />
     </div>
   )

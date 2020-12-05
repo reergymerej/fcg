@@ -1,7 +1,9 @@
 import React from "react";
+import Action from "./Action";
 
 type WorkProps = {
   onWork: () => void
+  canWork: boolean
   fast?: boolean
   cheap?: boolean
   good?: boolean
@@ -14,23 +16,30 @@ const Work: React.FC<WorkProps> = (props) => {
   }
   return (
     <div className="Work">
-      <p>
-        You are at work.
-      </p>
+      <div>
+        <h2>
+          Work
+        </h2>
 
-      <p>
-        Your boss wants
-      </p>
+        <p>
+          Your boss wants
+        </p>
 
-      <ul>
-        {props.fast && <li>fast</li>}
-        {props.cheap && <li>cheap</li>}
-        {props.good && <li>good</li>}
-      </ul>
+        <ul>
+          {props.fast && <li>fast (-2 energy)</li>}
+          {props.cheap && <li>cheap</li>}
+          {props.good && <li>good</li>}
+        </ul>
 
-      <p>You will get paid ${props.pay}.</p>
+        <p>You will get paid ${props.pay}.</p>
 
-      <button onClick={handleButtonClick}>Do Work</button>
+        <Action
+          onClick={handleButtonClick}
+          label="Do Work"
+          info="-energy"
+          disabled={!props.canWork}
+        />
+      </div>
     </div>
   )
 }

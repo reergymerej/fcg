@@ -1,5 +1,6 @@
 import React from 'react';
 import './App.css'
+import Energy from './Energy';
 import Home from './Home';
 import NextPromotion from './NextPromotion';
 import Specs from './Specs'
@@ -26,14 +27,14 @@ const jobs: Job[] = [
     fast: true,
   },
   {
-    skill: 6,
-    pay: 0.75,
+    skill: 3,
+    pay: 0.95,
     cheap: true,
     good: true,
   },
   {
-    skill: 9,
-    pay: 1.00,
+    skill: 5.5,
+    pay: 1.30,
     fast: true,
     good: true,
   },
@@ -44,12 +45,28 @@ const jobs: Job[] = [
   },
 ]
 
+const DAILY_ENERGY = 3
+
+const fixFloat = (x: number): number => {
+  return Math.round(x * 100) / 100
+}
+
+const getDaysUntilBillsDue = (day: number): number => {
+  return 6 - day % 7
+}
+
+
 const App = () => {
+  const [day, setDay] = React.useState(1)
   const [jobIndex, setJobIndex] = React.useState(0)
   const [money, setMoney] = React.useState(0)
   const [skill, setSkill] = React.useState(0)
   const [fatigue, setFatigue] = React.useState(0)
+  const [energy, setEnergy] = React.useState(DAILY_ENERGY)
+  const BILLS_PER_DAY = 0.2
+  const [bills, setBills] = React.useState(BILLS_PER_DAY)
   const [atWork, setAtWork] = React.useState(true)
+  const [studyMaterials, setStudyMaterials] = React.useState(0)
 
   const job = jobs[jobIndex]
   const { pay, good, fast, cheap} = job
@@ -64,6 +81,8 @@ const App = () => {
     }
   }
 
+  const fatigueChange = fast ? 2 : 1
+
   const doWork = () => {
     const skillChange = good ? 1 : 0.2
     setSkill(skill + skillChange)
@@ -71,47 +90,90 @@ const App = () => {
     const moneyChange = pay
     setMoney(money + moneyChange)
 
-    const fatigueChange = fast ? 2 : 1
     setFatigue(fatigue + fatigueChange)
+    setEnergy(energy - fatigueChange)
 
     setAtWork(false)
   }
 
+  const handleBills = () => {
+    setBills(bills + BILLS_PER_DAY)
+    if (getDaysUntilBillsDue(day) === 0) {
+      console.log('paying bills')
+      setMoney(money - bills)
+    }
+  }
+
   const endDay = () => {
     setFatigue(0)
+    setEnergy(DAILY_ENERGY)
     setAtWork(true)
+    setDay(day + 1)
+    handleBills()
+  }
+
+  const buyClass = () => {
+    setFatigue(fatigue + 1)
+    setEnergy(energy - 1)
+    setMoney(money - 1)
+    setStudyMaterials(studyMaterials + 1)
+  }
+
+  const study = () => {
+    setFatigue(fatigue + 1)
+    setEnergy(energy - 1)
+    setStudyMaterials(studyMaterials - 0.25)
   }
 
   if (nextPromotionSkillLevel) {
     maybePromote(skill, nextPromotionSkillLevel)
   }
 
+  const studyMaterialCost = 1
+
+  const gameOver = money < 0
+
   return (
     <div className="App">
-      <Specs
-        money={money}
-        skill={skill}
-        fatigue={fatigue}
+      <Energy
+        percent={(DAILY_ENERGY - energy + 1) / DAILY_ENERGY}
       />
 
-      {atWork
-        ?  (
+      <Specs
+        money={fixFloat(money)}
+        skill={fixFloat(skill)}
+        studyMaterials={studyMaterials}
+        bills={fixFloat(bills)}
+        billsDueInDays={fixFloat(getDaysUntilBillsDue(day))}
+      />
+
+      {gameOver &&
+        <div>
+          You went broke.
+        </div>
+      }
+
+      {!gameOver &&
+        <div className="Stage">
           <Work
             onWork={doWork}
             cheap={cheap}
             good={good}
             fast={fast}
             pay={pay}
+            canWork={energy > fatigueChange}
           />
-        )
-        : (
           <Home
             onEndDay={endDay}
+            onBuy={buyClass}
+            onStudy={study}
+            canStudy={studyMaterials > 0 && energy > 0}
+            canBuy={money >= studyMaterialCost && energy > 0}
           />
-        )
+        </div>
       }
 
-      {nextPromotionSkillLevel &&
+      {!gameOver && nextPromotionSkillLevel &&
       <NextPromotion
         nextPromotionSkillLevel={nextPromotionSkillLevel}
       />
