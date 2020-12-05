@@ -1,5 +1,5 @@
 .App {
-  text-align: center;
+  margin: 1em;
 }
 
 .App-logo {
@@ -35,4 +35,26 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+.Specs {
+  width: 125px;
+}
+
+.SpecItem {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5em;
+}
+
+.SpecItem:first-of-type {
+  margin-top: 0;
+}
+
+.Specs label {
+  font-weight: bold;
+}
+
+.Specs .value {
+  margin-left: 1em;
 }
